@@ -1,0 +1,86 @@
+<?php
+
+/**
+ * @file
+ * Provides a table formatter for multifield field types.
+ */
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function multifield_table_field_formatter_info() {
+  $info = array();
+  $multifields = multifield_load_all();
+
+  if (!empty($multifields)) {
+    $info['multifield_table'] = array(
+      'label' => t('Table'),
+      'field types' => array_keys($multifields),
+      'settings' => array(
+        'view_mode' => 'default',
+      ),
+    );
+  }
+
+  return $info;
+}
+
+/**
+ * Implements hook_field_formatter_settings().
+ */
+function multifield_table_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  return multifield_field_formatter_settings_form($field, $instance, $view_mode, $form, $form_state);
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function multifield_table_field_formatter_settings_summary($field, $instance, $view_mode) {
+  return multifield_field_formatter_settings_summary($field, $instance, $view_mode);
+}
+
+/**
+ * Implements hook_field_prepare_view().
+ */
+function multifield_table_field_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items, $display = NULL) {
+  return multifield_field_prepare_view($entity_type, $entities, $field, $instances, $langcode, $items, $display);
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function multifield_table_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  $settings = $display['settings'];
+
+  if ($items) {
+    $subtypes = multifield_get_subfields($field['type']);
+    $header = $rows = array();
+
+    foreach ($subtypes as $subtype) {
+      $info = field_info_instance('multifield', $subtype, $field['type']);
+      $header[] = $info['label'];
+    }
+
+    foreach ($items as $item) {
+      $row = array();
+      foreach ($subtypes as $subtype) {
+        if ($cell = field_view_field('multifield', $item['#pseudo_entity'], $subtype, $settings['view_mode'])) {
+          $row[] = render($cell[0]);
+        }
+        else {
+          $row[] = '';
+        }
+      }
+      $rows[] = $row;
+    }
+
+    $element[0] = array(
+      '#theme' => 'table',
+      '#header' => $header,
+      '#rows' => $rows,
+    );
+  }
+
+  return $element;
+}
