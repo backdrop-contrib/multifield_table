@@ -59,7 +59,10 @@ function multifield_table_field_formatter_view($entity_type, $entity, $field, $i
 
     foreach ($subtypes as $subtype) {
       $info = field_info_instance('multifield', $subtype, $field['type']);
-      $header[] = $info['label'];
+      $header[] = array(
+        'data' => $info['label'],
+        'class' => drupal_clean_css_identifier($info['field_name']),
+      );
     }
 
     foreach ($items as $item) {
