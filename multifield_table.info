@@ -2,3 +2,5 @@ name = Multifield table
 description = Provides a table formatter for multifield field types.
 core = 7.x
 dependencies[] = multifield
+
+files[] = multifield_table.test

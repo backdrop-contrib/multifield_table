@@ -54,21 +54,31 @@ function multifield_table_field_formatter_view($entity_type, $entity, $field, $i
   $settings = $display['settings'];
 
   if ($items) {
-    $subtypes = multifield_get_subfields($field['type']);
     $header = $rows = array();
 
-    foreach ($subtypes as $subtype) {
-      $info = field_info_instance('multifield', $subtype, $field['type']);
-      $header[] = array(
-        'data' => $info['label'],
-        'class' => drupal_clean_css_identifier($info['field_name']),
-      );
-    }
-
     foreach ($items as $item) {
+      // Generate the table header.
+      if (!$header) {
+        $instances = field_info_instances('multifield', $item['#pseudo_entity']->type);
+        foreach ($instances as $name => $instance) {
+          if ($instance['display'][$settings['view_mode']]['type'] != 'hidden') {
+            $fields[$instance['display'][$settings['view_mode']]['weight']] = $name;
+          }
+        }
+        ksort($fields);
+
+        foreach ($fields as $subtype) {
+          $header[$subtype] = array(
+            'data' => $instances[$subtype]['label'],
+            'class' => drupal_clean_css_identifier($subtype),
+          );
+        }
+      }
+
+      // Display field columns.
       $row = array();
-      foreach ($subtypes as $subtype) {
-        if ($cell = field_view_field('multifield', $item['#pseudo_entity'], $subtype, $settings['view_mode'])) {
+      foreach ($fields as $subtype) {
+        if ($cell = field_view_field('multifield', $item['#pseudo_entity'], $subtype, $settings['view_mode'], $langcode)) {
           $row[] = render($cell[0]);
         }
         else {
@@ -78,11 +88,13 @@ function multifield_table_field_formatter_view($entity_type, $entity, $field, $i
       $rows[] = $row;
     }
 
-    $element[0] = array(
-      '#theme' => 'table',
-      '#header' => $header,
-      '#rows' => $rows,
-    );
+    if ($rows) {
+      $element[0] = array(
+        '#theme' => 'table',
+        '#header' => $header,
+        '#rows' => $rows,
+      );
+    }
   }
 
   return $element;
