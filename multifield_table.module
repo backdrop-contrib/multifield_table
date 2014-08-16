@@ -15,7 +15,7 @@ function multifield_table_field_formatter_info() {
   if (!empty($multifields)) {
     $info['multifield_table'] = array(
       'label' => t('Table'),
-      'field types' => array_keys($multifields),
+      'field types' => array_merge(array('multifield'), array_keys($multifields)),
       'settings' => array(
         'view_mode' => 'default',
       ),
@@ -210,7 +210,7 @@ function multifield_table_field_widget_info() {
     return array(
       'multifield_table' => array(
         'label' => t('Table'),
-        'field types' => array_keys($multifields),
+        'field types' => array_merge(array('multifield'), array_keys($multifields)),
         'behaviors' => array(
           'multiple values' => FIELD_BEHAVIOR_DEFAULT,
           'default value' => FIELD_BEHAVIOR_DEFAULT,
