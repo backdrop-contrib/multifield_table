@@ -18,6 +18,7 @@ function multifield_table_field_formatter_info() {
       'field types' => array_merge(array('multifield'), array_keys($multifields)),
       'settings' => array(
         'view_mode' => 'default',
+        'header_type' => 'sticky',
       ),
     );
   }
@@ -29,14 +30,42 @@ function multifield_table_field_formatter_info() {
  * Implements hook_field_formatter_settings().
  */
 function multifield_table_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
-  return multifield_field_formatter_settings_form($field, $instance, $view_mode, $form, $form_state);
+  $element = multifield_field_formatter_settings_form($field, $instance, $view_mode, $form, $form_state);
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $element['header_type'] = array(
+    '#type' => 'select',
+    '#title' => t('Table header type'),
+    '#options' => array(
+      'sticky' => t('Sticky table header'),
+      'normal' => t('Normal table header (not sticky)'),
+      'none' => t('No table header'),
+    ),
+    '#default_value' => isset($settings['header_type']) ? $settings['header_type'] : 'sticky',
+  );
+  return $element;
 }
 
 /**
  * Implements hook_field_formatter_settings_summary().
  */
 function multifield_table_field_formatter_settings_summary($field, $instance, $view_mode) {
-  return multifield_field_formatter_settings_summary($field, $instance, $view_mode);
+  $summary = multifield_field_formatter_settings_summary($field, $instance, $view_mode);
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $settings += array('header_type' => 'sticky');
+  switch ($settings['header_type']) {
+    case 'sticky':
+      $summary .= "<br />" . t('Use sticky header');
+      break;
+    case 'normal':
+      $summary .= "<br />" . t('Use normal header (not sticky)');
+      break;
+    case 'none':
+      $summary .= "<br />" . t('Do not use a table header');
+      break;
+  }
+  return $summary;
 }
 
 /**
@@ -89,10 +118,12 @@ function multifield_table_field_formatter_view($entity_type, $entity, $field, $i
     }
 
     if ($rows) {
+      $settings += array('header_type' => 'sticky');
       $element[0] = array(
         '#theme' => 'table',
-        '#header' => $header,
+        '#header' => $settings['header_type'] == 'none' ? array() : $header,
         '#rows' => $rows,
+        '#sticky' => $settings['header_type'] == 'sticky',
       );
     }
   }
