@@ -1,0 +1,5 @@
+[MultifieldTableTest]
+name = Multifield table
+description = Test the Multifield table module.
+group = Multifield
+file = multifield_table.test

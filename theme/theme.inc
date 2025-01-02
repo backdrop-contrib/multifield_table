@@ -35,7 +35,7 @@ function theme_multifield_table_multiple_value_field($variables) {
   );
 
   $element['#sorted'] = FALSE;
-  return drupal_render_children($element);
+  return backdrop_render_children($element);
 }
 
 /**
@@ -57,7 +57,7 @@ function theme_multifield_table_multiple_value_fields($variables) {
   $output = '';
 
   if (isset($element['#cardinality']) && ($element['#cardinality'] > 1 || $element['#cardinality'] == FIELD_CARDINALITY_UNLIMITED)) {
-    $table_id = drupal_html_id($element['#field_name'] . '_values');
+    $table_id = backdrop_html_id($element['#field_name'] . '_values');
     $order_class = $element['#field_name'] . '-delta-order';
     $required = !empty($element['#required']) ? '<span class="form-required" title="' . t('This field is required.') . '">*</span>' : '';
 
@@ -93,7 +93,10 @@ function theme_multifield_table_multiple_value_fields($variables) {
       uasort($item, 'element_sort');
       $item['_weight']['#attributes']['class'] = array($order_class);
       $cells = array(
-        array('data' => '', 'class' => array('field-multiple-drag')),
+        array(
+          'data' => '',
+          'class' => array('field-multiple-drag'),
+        ),
       );
       foreach (element_children($item) as $field_name) {
         if ($field_name != 'id') {
@@ -148,13 +151,13 @@ function theme_multifield_table_multiple_value_fields($variables) {
       $output[] = $id_fields;
     }
 
-    $output = drupal_render($output);
+    $output = backdrop_render($output);
 
-    drupal_add_tabledrag($table_id, 'order', 'sibling', $order_class);
+    backdrop_add_tabledrag($table_id, 'order', 'sibling', $order_class);
   }
   else {
     foreach (element_children($element) as $key) {
-      $output .= drupal_render($element[$key]);
+      $output .= backdrop_render($element[$key]);
     }
   }
 

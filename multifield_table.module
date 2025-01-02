@@ -99,7 +99,7 @@ function multifield_table_field_formatter_view($entity_type, $entity, $field, $i
         foreach ($fields as $subtype) {
           $header[$subtype] = array(
             'data' => $instances[$subtype]['label'],
-            'class' => drupal_clean_css_identifier($subtype),
+            'class' => backdrop_clean_css_identifier($subtype),
           );
         }
       }
@@ -121,7 +121,7 @@ function multifield_table_field_formatter_view($entity_type, $entity, $field, $i
       $settings += array('header_type' => 'sticky');
       $element[0] = array(
         '#theme' => 'table',
-        '#header' => $settings['header_type'] == 'none' ? array() : $header,
+        '#header' => $settings['header_type'] == 'none'?array() : $header,
         '#rows' => $rows,
         '#sticky' => $settings['header_type'] == 'sticky',
       );
@@ -263,3 +263,11 @@ function multifield_table_field_widget_form(&$form, &$form_state, $field, $insta
   }
   return $element;
 }
+
+///**
+// * Implements hook_autoload_info().
+// */
+//function multifield_table_autoload_info() {
+//  return array(
+//  );
+//}

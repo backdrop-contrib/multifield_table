@@ -1,6 +1,8 @@
 name = Multifield table
 description = Provides a table formatter for multifield field types.
-core = 7.x
+backdrop = 1.x
+type = module
 dependencies[] = multifield
+package = Fields
 
-files[] = multifield_table.test
+version = 1.x-1.x

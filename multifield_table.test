@@ -1,6 +1,6 @@
 <?php
 
-class MultifieldTableTest extends DrupalWebTestCase {
+class MultifieldTableTest extends BackdropWebTestCase {
   public static function getInfo() {
     return array(
       'name' => 'Multifield table',
@@ -16,17 +16,17 @@ class MultifieldTableTest extends DrupalWebTestCase {
     // Enable minimum required modules.
     parent::setUp('multifield', 'multifield_table');
     // Create user.
-    $this->privileged_user = $this->drupalCreateUser(array(
+    $this->privileged_user = $this->backdropCreateUser(array(
       'bypass node access',
       'administer content types',
       'administer multifield',
     ));
 
-    $this->drupalLogin($this->privileged_user);
+    $this->backdropLogin($this->privileged_user);
 
     // Create content type, with underscores.
     $type_name = strtolower($this->randomName(8)) . '_test';
-    $type = $this->drupalCreateContentType(array('name' => $type_name, 'type' => $type_name));
+    $type = $this->backdropCreateContentType(array('name' => $type_name, 'type' => $type_name));
     $this->type = $type->type;
     // Store a valid URL name, with hyphens instead of underscores.
     $this->hyphen_type = str_replace('_', '-', $this->type);
@@ -38,13 +38,13 @@ class MultifieldTableTest extends DrupalWebTestCase {
    * @param string $bundle_path
    *   Admin path of the bundle that the new field is to be attached to.
    * @param array $initial_edit
-   *   $edit parameter for drupalPost() on the first step ('Manage fields'
+   *   $edit parameter for backdropPost() on the first step ('Manage fields'
    *   screen).
    * @param array $field_edit
-   *   $edit parameter for drupalPost() on the second step ('Field settings'
+   *   $edit parameter for backdropPost() on the second step ('Field settings'
    *   form).
    * @param array $instance_edit
-   *   $edit parameter for drupalPost() on the third step ('Instance settings'
+   *   $edit parameter for backdropPost() on the third step ('Instance settings'
    *   form).
    */
   function fieldUIAddNewField($bundle_path, $initial_edit, $field_edit = array(), $instance_edit = array()) {
@@ -57,15 +57,15 @@ class MultifieldTableTest extends DrupalWebTestCase {
     $field_name = $initial_edit['fields[_add_new_field][field_name]'];
 
     // First step : 'Add new field' on the 'Manage fields' page.
-    $this->drupalPost("$bundle_path/fields", $initial_edit, t('Save'));
+    $this->backdropPost("$bundle_path/fields", $initial_edit, t('Save'));
     $this->assertRaw(t('These settings apply to the %label field everywhere it is used.', array('%label' => $label)), t('Field settings page was displayed.'));
 
     // Second step : 'Field settings' form.
-    $this->drupalPost(NULL, $field_edit, t('Save field settings'));
+    $this->backdropPost(NULL, $field_edit, t('Save field settings'));
     $this->assertRaw(t('Updated field %label field settings.', array('%label' => $label)), t('Redirected to instance and widget settings page.'));
 
     // Third step : 'Instance settings' form.
-    $this->drupalPost(NULL, $instance_edit, t('Save settings'));
+    $this->backdropPost(NULL, $instance_edit, t('Save settings'));
     $this->assertRaw(t('Saved %label configuration.', array('%label' => $label)), t('Redirected to "Manage fields" page.'));
 
     // Check that the field appears in the overview form.
@@ -87,7 +87,7 @@ class MultifieldTableTest extends DrupalWebTestCase {
       ));
       $this->assertFieldByXPath($xpath, $field['label']);
       $xpath = $this->buildXPathQuery('//table/thead/tr/th[contains(@class, :field-name)]', array(
-        ':field-name' => drupal_clean_css_identifier($field['name']),
+        ':field-name' => backdrop_clean_css_identifier($field['name']),
       ));
       $this->assertFieldByXPath($xpath, $field['label']);
       $xpath = $this->buildXPathQuery('//table/tbody/tr/td[:position]', array(
@@ -104,7 +104,7 @@ class MultifieldTableTest extends DrupalWebTestCase {
    *   Array to shuffle
    *
    * @return array
-   *   The assoc shuffled array 
+   *   The assoc shuffled array
    */
   function shuffleAssoc($list) {
     if (!is_array($list)) {
@@ -124,14 +124,14 @@ class MultifieldTableTest extends DrupalWebTestCase {
    * Performs the basic tests.
    */
   public function testMultifieldTableBasic() {
-    $this->multifield = drupal_strtolower($this->randomName());
+    $this->multifield = backdrop_strtolower($this->randomName());
 
     $edit = array(
       'label' => $this->multifield,
       'machine_name' => $this->multifield,
     );
 
-    $this->drupalPost('admin/structure/multifield/add', $edit, t('Save'));
+    $this->backdropPost('admin/structure/multifield/add', $edit, t('Save'));
 
     $this->multifield_path = 'admin/structure/multifield/manage/' . str_replace('_', '-', $this->multifield);
 
@@ -141,21 +141,21 @@ class MultifieldTableTest extends DrupalWebTestCase {
         'type' => 'text',
         'widget' => 'text_textfield',
         'label' => $this->randomName(),
-        'name' => drupal_strtolower($this->randomName()),
+        'name' => backdrop_strtolower($this->randomName()),
         'value' => $this->randomName(),
       ),
       'longtext' => array(
         'type' => 'text_long',
         'widget' => 'text_textarea',
         'label' => $this->randomName(),
-        'name' => drupal_strtolower($this->randomName()),
+        'name' => backdrop_strtolower($this->randomName()),
         'value' => $this->randomName(32),
       ),
       'integer' => array(
         'type' => 'number_integer',
         'widget' => 'number',
         'label' => $this->randomName(),
-        'name' => drupal_strtolower($this->randomName()),
+        'name' => backdrop_strtolower($this->randomName()),
         'value' => rand(0, 999),
       ),
     );
@@ -187,7 +187,7 @@ class MultifieldTableTest extends DrupalWebTestCase {
     $edit = array(
       'fields[field_multifield][type]' => 'multifield_table',
     );
-    $this->drupalPost($manage_display, $edit, t('Save'));
+    $this->backdropPost($manage_display, $edit, t('Save'));
 
     // Go to node creation page.
     $edit = array(
@@ -196,7 +196,7 @@ class MultifieldTableTest extends DrupalWebTestCase {
     foreach ($fields as $field) {
       $edit["field_multifield[und][0][field_${field['name']}][und][0][value]"] = $field['value'];
     }
-    $this->drupalPost('node/add/' . $this->hyphen_type, $edit, t('Save'));
+    $this->backdropPost('node/add/' . $this->hyphen_type, $edit, t('Save'));
     $this->node_url = $this->getUrl();
 
     // Check table is generated successfully.
@@ -212,10 +212,10 @@ class MultifieldTableTest extends DrupalWebTestCase {
       $edit["fields[field_${field['name']}][weight]"] = $position;
     }
 
-    $this->drupalPost($this->multifield_path . '/display', $edit, t('Save'));
+    $this->backdropPost($this->multifield_path . '/display', $edit, t('Save'));
 
     // Check that table items respect multifield display weights.
-    $this->drupalGet($this->node_url);
+    $this->backdropGet($this->node_url);
 
     $this->checkMultifieldTable($shuffled_fields);
   }
